@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo Lü — 长图文设计 Long-form Graphic</title>
+<style>
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-600-latin.woff2") format("woff2");
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-400-latin.woff2") format("woff2");
+    font-weight: 400;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #111111;
+    font-family: "Outfit", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0; /* 入场渐显（与全站一致，0.5s） */
+    transition: opacity 0.5s ease;
+  }
+  body.in { opacity: 1; }
+
+  /* ===== 左侧固定导航栏（参考 cargo.site 排版） ===== */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(0,0,0,0.08);
+    background: #ffffff;
+    z-index: 5;
+  }
+  .brand-name {
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.1em;
+    margin-bottom: 34px;
+  }
+  .nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 17px;
+    font-weight: 400;
+  }
+  .nav a {
+    color: #111111;
+    text-decoration: none;
+    line-height: 1.45;
+    transition: opacity 0.25s;
+  }
+  .nav a:hover { opacity: 0.45; }
+  .nav a.active { color: #9B30FF; } /* 当前板块高亮为品牌紫 */
+  .nav a.back-link {
+    margin-top: 26px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .copyright {
+    margin-top: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(17,17,17,0.55);
+  }
+
+  /* ===== 右侧主内容区 ===== */
+  .main {
+    margin-left: 240px;
+    padding: 28px 44px 120px;
+  }
+
+  /* 项目块：顶部 左简介 / 右标题，下方两列连贯长图 */
+  .project { margin-bottom: 120px; }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 44px;
+  }
+  .desc {
+    flex: 0 1 520px;
+    min-width: 320px;
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .desc p + p { margin-top: 1em; }
+  .desc .zh { font-family: "Songti SC", "STSong", serif; }
+  .title {
+    flex: 0 0 auto;
+    text-align: right;
+    font-weight: 600;
+    font-size: clamp(26px, 2.8vw, 40px);
+    line-height: 1.08;
+    letter-spacing: 0.01em;
+  }
+  .title .zh {
+    display: block;
+    font-family: "Songti SC", "STSong", serif;
+    font-weight: 700;
+  }
+  .title .year { font-weight: 400; }
+
+  /* 两列连贯长图：每张图缩到列宽，两列顶对齐 */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .cols img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* 滚动进入时轻微上浮渐显 */
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .cols img.seen { opacity: 1; transform: translateY(0); }
+
+  /* 秀米交互视频：居中竖屏视频块 */
+  .video-wrap {
+    display: flex;
+    justify-content: center;
+    /* 与图片一致的上浮渐显 */
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .video-wrap.seen { opacity: 1; transform: translateY(0); }
+  .video-wrap video {
+    width: min(420px, 90%);
+    max-height: 82vh;
+    display: block;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 18px;
+    background: #000;
+  }
+
+  @media (max-width: 860px) {
+    .sidebar {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .brand-name { margin-bottom: 14px; }
+    .copyright { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .head { flex-direction: column-reverse; gap: 20px; }
+    .title { text-align: left; }
+    .cols { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand-name">Leo Lü</div>
+    <ul class="nav">
+      <li><a href="poster.html">海报设计 Poster</a></li>
+      <li><a class="active" href="longform.html">长图文设计 Long-form</a></li>
+      <li><a href="photography.html">摄影 Photography</a></li>
+      <li><a href="newmedia.html">新媒体运营 New Media</a></li>
+      <li><a href="branding.html">品牌策划 Branding</a></li>
+      <li><a href="vibecoding.html">Vibe Coding</a></li>
+      <li><a class="back-link" href="index.html#works">← Back · 返回首页</a></li>
+    </ul>
+    <div class="copyright">All content copyright the artist.<br>No commercial use without express written permission.</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- 项目零：公众号秀米交互排版（视频） -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">一段自己公众号的排版录屏。用秀米编辑器完成整篇图文的交互排版——点击展开、滑动切换、渐显动效，这些在公众号里「能点、能动」的效果，都是一个个组件调出来的。静态长图文之外，这是另一种讲故事的方式。</p>
+          <p class="en">A screen recording from my own WeChat official account — interactive layouts built with the Xiumi editor: tap-to-expand sections, swipe galleries and fade-in animations. Every tappable, moving element was assembled component by component. Beyond static long-forms, this is another way of telling a story.</p>
+        </div>
+        <div class="title">
+          <span class="zh">公众号交互排版</span>
+          Interactive<br>Layout<br><span class="year">2025 · 秀米</span>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video id="xiumiVideo" src="longform/xiumi-demo.mp4" controls muted loop playsinline preload="auto"></video>
+      </div>
+    </section>
+
+    <!-- 项目一：观夏「未寄信」品牌长图文 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">一组品牌长图文，写的是香氛品牌「观夏」的《未寄信》。以一封没有寄出的信为线索，把香气写成记忆——纸的肌理、手写的温度、那些不愿说出口的话，都折进了这封信里。</p>
+          <p class="en">A brand long-form inspired by the fragrance house To Summer's "Unsent Letter". Scent written as memory: paper texture, the warmth of handwriting, and all the words that were never said out loud.</p>
+        </div>
+        <div class="title">
+          <span class="zh">长图文设计</span>
+          Long-form<br>Graphic<br><span class="year">2025 · I</span>
+        </div>
+      </div>
+      <div class="cols">
+        <img src="longform/p4a.jpg" alt="观夏未寄信品牌长图文 上">
+        <img src="longform/p4b.jpg" alt="观夏未寄信品牌长图文 下">
+      </div>
+    </section>
+
+    <!-- 项目二：金爱烂读书长图文 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">一组读书长图文，发布在自己的公众号上。以金爱烂的《容易忘记的名字》与《你的夏天还好吗》为线索，把书评、摘句与影像编织成一条可以慢慢滑动的叙事长卷。</p>
+          <p class="en">A reading long-form published on my own WeChat account — woven around Kim Ae-ran's essays, stitching reviews, quoted lines and imagery into one slow-scrolling narrative.</p>
+        </div>
+        <div class="title">
+          <span class="zh">长图文设计</span>
+          Long-form<br>Graphic<br><span class="year">2025 · II</span>
+        </div>
+      </div>
+      <div class="cols">
+        <img src="longform/p1a.jpg" alt="金爱烂读书长图文 上">
+        <img src="longform/p1b.jpg" alt="金爱烂读书长图文 下">
+      </div>
+    </section>
+
+    <!-- 项目三：伊坂幸太郎读书长图文 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">另一组读书长图文，写给伊坂幸太郎，同样发布在自己的公众号上。书摘与书评交错排布，用更松弛的网格和留白，留住他笔下那种温柔又荒诞的日常。</p>
+          <p class="en">Another reading long-form on my own WeChat account, this time for Isaka Kōtarō — excerpts and reviews interleaved in a looser grid, keeping the tender, absurdist everydayness of his writing.</p>
+        </div>
+        <div class="title">
+          <span class="zh">长图文设计</span>
+          Long-form<br>Graphic<br><span class="year">2025 · III</span>
+        </div>
+      </div>
+      <div class="cols">
+        <img src="longform/p2a.jpg" alt="伊坂幸太郎读书长图文 上">
+        <img src="longform/p2b.jpg" alt="伊坂幸太郎读书长图文 下">
+      </div>
+    </section>
+
+    <!-- 项目四：《出走的决心》影评长图文 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">一组影评长图文，写给电影《出走的决心》。沿公路片的节奏铺排画面与文字——红色的决心、蓝色的出走，剧照与短句一页页翻过去，像她终于踩下的那脚油门。</p>
+          <p class="en">A film-review long-form for "The Determination to Run Away" — stills and short lines laid out like a road movie: red for resolve, blue for escape, page after page until she finally hits the gas.</p>
+        </div>
+        <div class="title">
+          <span class="zh">长图文设计</span>
+          Long-form<br>Graphic<br><span class="year">2025 · IV</span>
+        </div>
+      </div>
+      <div class="cols">
+        <img src="longform/p3a.jpg" alt="出走的决心影评长图文 上">
+        <img src="longform/p3b.jpg" alt="出走的决心影评长图文 下">
+      </div>
+    </section>
+
+  </main>
+
+<script>
+  // 入场渐显
+  requestAnimationFrame(() => document.body.classList.add("in"));
+
+  // 滚动进入视口时渐显
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } });
+  }, { threshold: 0.04 });
+  document.querySelectorAll(".cols img, .video-wrap").forEach(s => io.observe(s));
+
+  // 视频进入视口自动播放（静音循环，浏览器允许），滚出视口自动暂停
+  const xv = document.getElementById("xiumiVideo");
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { xv.play().catch(() => {}); }
+      else { xv.pause(); }
+    });
+  }, { threshold: 0.35 }).observe(xv);
+</script>
+</body>
+</html>

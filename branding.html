@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo Lü — 品牌策划 Brand Planning</title>
+<style>
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-600-latin.woff2") format("woff2");
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-400-latin.woff2") format("woff2");
+    font-weight: 400;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #111111;
+    font-family: "Outfit", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0; /* 入场渐显（与全站一致，0.5s） */
+    transition: opacity 0.5s ease;
+  }
+  body.in { opacity: 1; }
+
+  /* ===== 左侧固定导航栏 ===== */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(0,0,0,0.08);
+    background: #ffffff;
+    z-index: 5;
+  }
+  .brand-name {
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.1em;
+    margin-bottom: 34px;
+  }
+  .nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 17px;
+    font-weight: 400;
+  }
+  .nav a {
+    color: #111111;
+    text-decoration: none;
+    line-height: 1.45;
+    transition: opacity 0.25s;
+  }
+  .nav a:hover { opacity: 0.45; }
+  .nav a.active { color: #9B30FF; }
+  .nav a.back-link {
+    margin-top: 26px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .copyright {
+    margin-top: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(17,17,17,0.55);
+  }
+
+  /* ===== 右侧主内容区 ===== */
+  .main {
+    margin-left: 240px;
+    padding: 28px 44px 120px;
+  }
+
+  /* 项目块：顶部 左简介 / 右标题 */
+  .project { margin-bottom: 120px; }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 44px;
+  }
+  .desc {
+    flex: 0 1 520px;
+    min-width: 320px;
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .desc p + p { margin-top: 1em; }
+  .desc .zh { font-family: "Songti SC", "STSong", serif; }
+  .title {
+    flex: 0 0 auto;
+    text-align: right;
+    font-weight: 600;
+    font-size: clamp(26px, 2.8vw, 40px);
+    line-height: 1.08;
+    letter-spacing: 0.01em;
+  }
+  .title .zh {
+    display: block;
+    font-family: "Songti SC", "STSong", serif;
+    font-weight: 700;
+  }
+  .title .year { font-weight: 400; }
+
+  /* 分组小标题 */
+  .group-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(17,17,17,0.45);
+    margin: 52px 0 20px;
+  }
+  .group-label:first-of-type { margin-top: 0; }
+
+  /* ===== 对称网格 ===== */
+  .grid { display: grid; gap: 20px; align-items: start; }
+  .grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* 滚动进入时轻微上浮渐显 */
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .grid img.seen { opacity: 1; transform: translateY(0); }
+
+  /* Brief 策划文档：三列竖版，3×2 对称 */
+  .g-brief { grid-template-columns: repeat(3, 1fr); }
+  .g-brief img { border: 1px solid rgba(0,0,0,0.06); }
+
+  /* 活动落地回顾：四列竖长图，对称排布 */
+  .g-onsite { grid-template-columns: repeat(4, 1fr); }
+  .g-onsite img { border: 1px solid rgba(0,0,0,0.06); }
+
+  @media (max-width: 860px) {
+    .sidebar {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .brand-name { margin-bottom: 14px; }
+    .copyright { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .head { flex-direction: column-reverse; gap: 20px; }
+    .title { text-align: left; }
+    .grid { gap: 12px; }
+    .g-brief { grid-template-columns: 1fr 1fr; }
+    .g-onsite { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand-name">Leo Lü</div>
+    <ul class="nav">
+      <li><a href="poster.html">海报设计 Poster</a></li>
+      <li><a href="longform.html">长图文设计 Long-form</a></li>
+      <li><a href="photography.html">摄影 Photography</a></li>
+      <li><a href="newmedia.html">新媒体运营 New Media</a></li>
+      <li><a class="active" href="branding.html">品牌策划 Branding</a></li>
+      <li><a href="vibecoding.html">Vibe Coding</a></li>
+      <li><a class="back-link" href="index.html#works">← Back · 返回首页</a></li>
+    </ul>
+    <div class="copyright">All content copyright the artist.<br>No commercial use without express written permission.</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- 项目一：叫叫六一特别活动策划 Brief -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">为叫叫阅读旗下公益 IP「阅苗行动」策划的六一特别活动 brief。我负责活动主题的设想与具体活动内容的设计：以「文字出逃大作战」为主题——文字宝宝们集体逃离书本，孩子们化身亲子侦探团，在文轩 BOOKS 线下书店寻找并护送文字回家。活动落地于成都文轩 BOOKS 高新店与成华店双店，设置五大集章互动点位，让孩子在游戏中重新爱上阅读。</p>
+          <p class="en">A Children's Day special event brief for "Yuemiao Action", the charity IP of Jiaojiao Reading. I was responsible for the theme concept and the detailed activity design: "The Great Text Escape" — the little characters of words flee their books, and children become detective families to find and escort them home. The event landed in two Winshare BOOKS stores in Chengdu, with five stamp-collecting interactive checkpoints designed to make children fall in love with reading again through play.</p>
+        </div>
+        <div class="title">
+          <span class="zh">叫叫六一特别活动</span>
+          Brand<br>Planning<br><span class="year">2026 · I</span>
+        </div>
+      </div>
+
+      <div class="group-label">活动策划 Brief · Event Brief</div>
+      <div class="grid g-brief">
+        <img src="branding/brief/brief1.jpg" alt="策划文档 活动背景与目标">
+        <img src="branding/brief/brief2.jpg" alt="策划文档 活动主题 文字出逃大作战">
+        <img src="branding/brief/brief3.jpg" alt="策划文档 活动内容">
+        <img src="branding/brief/brief4.jpg" alt="策划文档 活动详情">
+        <img src="branding/brief/brief5.jpg" alt="策划文档 互动点位">
+        <img src="branding/brief/brief6.jpg" alt="策划文档 执行细案">
+      </div>
+    </section>
+
+    <!-- 项目二：活动设计需求 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">同一场活动的设计需求文档——我负责的部分。从主 KV 与预热海报出发，把「文字出逃大作战」的主题拆成一套完整的空间视觉系统：五大互动点位的 DP 点画面、画架 KT 板与规则牌、闯言集章册与印章、徽章贴纸等物料，以及线上公众号长图文的延展设计，每一项都标注了尺寸、文案与交付节点，确保从方案到落地不走样。</p>
+          <p class="en">The design requirements document for the same event — the part I was in charge of. Starting from the main KV and warm-up posters, "The Great Text Escape" was broken down into a complete spatial visual system: displays for the five interactive checkpoints, easel KT boards and rule cards, the stamp booklet and seals, badges and stickers, plus the extended WeChat long-form design — each item specified with dimensions, copy and delivery deadlines, so nothing is lost from concept to execution.</p>
+        </div>
+        <div class="title">
+          <span class="zh">活动设计需求</span>
+          Design<br>Requirements<br><span class="year">2026 · II</span>
+        </div>
+      </div>
+
+      <div class="group-label">设计需求文档 · Design Requirements Doc</div>
+      <div class="grid g-brief">
+        <img src="branding/design/design1.jpg" alt="设计需求 主KV与总览">
+        <img src="branding/design/design2.jpg" alt="设计需求 DP点一 追踪赠身暗号">
+        <img src="branding/design/design3.jpg" alt="设计需求 DP点二 破解分身魔咒">
+        <img src="branding/design/design4.jpg" alt="设计需求 DP点三 创意道具店">
+        <img src="branding/design/design5.jpg" alt="设计需求 DP点五 闯言集章册站">
+        <img src="branding/design/design6.jpg" alt="设计需求 集章卡与物料延展">
+      </div>
+    </section>
+
+    <!-- 项目三：活动落地回顾 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">活动落地后的官方回顾。六一当天，「文字出逃大作战」在文轩 BOOKS 双店真实发生：孩子们拿着集章册在各个点位闯关、集章、兑换礼物，文字宝宝们被一个个护送回书本。方案里的每一条设计需求，都在这一天变成了现场。</p>
+          <p class="en">The official recap after the event landed. On Children's Day, "The Great Text Escape" really happened in two Winshare BOOKS stores: children ran through the checkpoints with their stamp booklets, collecting stamps and redeeming gifts, escorting the little words back into their books. Every line in the design requirements became part of the scene that day.</p>
+        </div>
+        <div class="title">
+          <span class="zh">活动落地</span>
+          Event<br>Recap<br><span class="year">2026 · III</span>
+        </div>
+      </div>
+
+      <div class="group-label">落地回顾长图文 · Event Recap</div>
+      <div class="grid g-onsite">
+        <img src="branding/onsite/onsite1.png" alt="落地回顾 现场盛况">
+        <img src="branding/onsite/onsite2.jpg" alt="落地回顾 点位互动瞬间">
+        <img src="branding/onsite/onsite3.jpg" alt="落地回顾 集章与创作">
+        <img src="branding/onsite/onsite4.jpg" alt="落地回顾 合影与祝福">
+      </div>
+    </section>
+
+  </main>
+
+<script>
+  // 入场渐显
+  requestAnimationFrame(() => document.body.classList.add("in"));
+
+  // 滚动进入视口时渐显
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } });
+  }, { threshold: 0.04 });
+  document.querySelectorAll(".grid img").forEach(s => io.observe(s));
+</script>
+</body>
+</html>

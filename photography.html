@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo Lü — 摄影 Photography</title>
+<style>
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-600-latin.woff2") format("woff2");
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-400-latin.woff2") format("woff2");
+    font-weight: 400;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #9754c7;
+    overflow: hidden;
+    font-family: "Outfit", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0; /* 入场渐显 */
+    transition: opacity 0.5s ease;
+  }
+  body.in { opacity: 1; }
+
+  /* ===== 照片圆环（参考 Lowkey：所有照片围成一个圆，缓慢旋转） ===== */
+  .ring {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 0; height: 0;
+    z-index: 1;
+  }
+  .photo {
+    position: absolute;
+    width: 74px;
+    height: 99px;
+    margin: -50px 0 0 -37px;
+    cursor: pointer;
+    perspective: 800px;
+    z-index: 1;
+  }
+  .photo .flip {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* 鼠标触碰：翻转 */
+  .photo:hover .flip { transform: rotateY(180deg); }
+  .photo .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(40, 10, 60, 0.35);
+  }
+  .photo .face img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .photo .face.back {
+    transform: rotateY(180deg);
+    background: #0d0d0d;
+    color: #9754c7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+  .photo .face.back .num { font-size: 16px; letter-spacing: 0.1em; color: #f2f2f2; }
+
+  /* ===== 底部中央：Leo Lü（对应 Lowkey 的 LOWKEY 位） ===== */
+  .brand {
+    position: fixed;
+    left: 50%;
+    bottom: 2.5vh; /* 下移，避免挡住圆环底部的照片 */
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 2;
+    color: #f2f2f2;
+    pointer-events: none;
+  }
+  .brand .name {
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    font-weight: 700;
+    font-size: clamp(28px, 3.2vw, 44px);
+    letter-spacing: 0.14em;
+  }
+  .brand .sub {
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  /* ===== 右下角文案（中文宋体 + 英文 Outfit，与 bbdo 字体一致） ===== */
+  .quote {
+    position: fixed;
+    right: 3vw;
+    bottom: 4vh;
+    max-width: 320px;
+    z-index: 2;
+    text-align: left;
+  }
+  .quote .zh {
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    font-size: 13px;
+    line-height: 2;
+    letter-spacing: 0.12em;
+    color: rgba(242, 242, 242, 0.9);
+  }
+  .quote .en {
+    margin-top: 12px;
+    font-family: "Outfit", sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
+    color: rgba(242, 242, 242, 0.6);
+  }
+
+  /* 左上角返回 */
+  .back {
+    position: fixed;
+    left: 3vw;
+    top: 4vh;
+    z-index: 3;
+    color: #f2f2f2;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    transition: opacity 0.3s;
+  }
+  .back:hover { opacity: 0.5; }
+
+  /* ===== 右上角：跳转其他板块 ===== */
+  .site-nav {
+    position: fixed;
+    right: 3vw;
+    top: 4vh;
+    z-index: 3;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .site-nav a {
+    color: rgba(242, 242, 242, 0.85);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    transition: opacity 0.25s;
+  }
+  .site-nav a:hover { opacity: 0.45; }
+  .site-nav a.here { color: #ffffff; font-weight: 600; pointer-events: none; }
+
+  /* ===== 点击放大（进入具体照片情形） ===== */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: rgba(24, 8, 36, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s;
+  }
+  .lightbox.open { opacity: 1; visibility: visible; }
+  .lightbox img {
+    max-width: 86vw;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    transform: scale(0.92);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.open img { transform: scale(1); }
+  .lightbox .close {
+    position: absolute;
+    top: 3.5vh;
+    right: 3vw;
+    color: #f2f2f2;
+    font-size: 34px;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+  }
+  .lightbox .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #f2f2f2;
+    font-size: 40px;
+    cursor: pointer;
+    padding: 20px;
+    opacity: 0.6;
+    user-select: none;
+    transition: opacity 0.3s;
+  }
+  .lightbox .nav:hover { opacity: 1; }
+  .lightbox .prev { left: 2vw; }
+  .lightbox .next { right: 2vw; }
+  .lightbox .counter {
+    position: absolute;
+    bottom: 4vh;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(242, 242, 242, 0.7);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+  }
+
+  @media (max-width: 768px) {
+    .photo { width: 52px; height: 70px; margin: -35px 0 0 -26px; }
+    .quote { max-width: 220px; }
+    .quote .zh { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+  <a class="back" href="index.html#works">← Back · 返回</a>
+
+  <nav class="site-nav">
+    <a href="poster.html">海报设计 Poster</a>
+    <a href="longform.html">长图文设计 Long-form</a>
+    <a class="here" href="photography.html">摄影 Photography</a>
+    <a href="newmedia.html">新媒体运营 New Media</a>
+    <a href="branding.html">品牌策划 Branding</a>
+    <a href="vibecoding.html">Vibe Coding</a>
+  </nav>
+
+  <div class="ring" id="ring"></div>
+
+  <div class="brand">
+    <div class="name">Leo Lü</div>
+    <div class="sub">Photography · 摄影</div>
+  </div>
+
+  <div class="quote">
+    <p class="zh">摄影是伟大的发明，是眼睛加上记忆，是生活日常加上一点不寻常，是让每一次，都加上第一次的魔力。</p>
+    <p class="en">Photography is a great invention — the eye plus memory, the everyday plus a touch of the unusual, giving every time the magic of the first time.</p>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <span class="close" id="lbClose">×</span>
+    <span class="nav prev" id="lbPrev">‹</span>
+    <img id="lbImg" alt="摄影作品">
+    <span class="nav next" id="lbNext">›</span>
+    <div class="counter" id="lbCounter"></div>
+  </div>
+
+<script>
+  // 入场渐显
+  requestAnimationFrame(() => document.body.classList.add("in"));
+
+  const PHOTOS = Array.from({ length: 21 }, (_, k) =>
+    `photography/photos/ph${String(k + 1).padStart(2, "0")}.jpg`
+  );
+
+  const ring = document.getElementById("ring");
+  const RADIUS = () => Math.min(window.innerWidth, window.innerHeight) * 0.33;
+  const cards = [];
+
+  PHOTOS.forEach((src, idx) => {
+    const el = document.createElement("div");
+    el.className = "photo";
+    el.innerHTML = `
+      <div class="flip">
+        <div class="face front"><img src="${src}" alt="摄影作品 ${idx + 1}"></div>
+        <div class="face back"><span>Leo Lü</span><span class="num">${String(idx + 1).padStart(2, "0")}</span></div>
+      </div>`;
+    el.addEventListener("click", () => openLightbox(idx));
+    ring.appendChild(el);
+    cards.push(el);
+  });
+
+  // 圆环缓慢自转，照片始终保持正立并带一点各自的小倾斜
+  let rot = 0;
+  let last = performance.now();
+  const SPEED = 0.006; // 度/毫秒 → 约 60s 转一圈
+  const tilts = cards.map(() => (Math.random() - 0.5) * 14);
+
+  function layout(now) {
+    rot += (now - last) * SPEED;
+    last = now;
+    const R = RADIUS();
+    const n = cards.length;
+    cards.forEach((el, i) => {
+      const a = rot + (360 / n) * i - 90;
+      const rad = a * Math.PI / 180;
+      const x = Math.cos(rad) * R;
+      const y = Math.sin(rad) * R * 0.92; // 轻微椭圆，更有纵深感
+      el.style.transform = `translate(${x}px, ${y}px) rotate(${tilts[i]}deg)`;
+      // 底部的照片在上层，顶部在下层
+      el.style.zIndex = Math.round(100 + Math.sin(rad) * 50);
+    });
+    requestAnimationFrame(layout);
+  }
+  requestAnimationFrame(layout);
+
+  // ===== 点击放大 =====
+  const lb = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lbImg");
+  const lbCounter = document.getElementById("lbCounter");
+  let cur = 0;
+
+  function openLightbox(i) {
+    cur = i;
+    lbImg.src = PHOTOS[cur];
+    lbCounter.textContent = `${cur + 1} / ${PHOTOS.length}`;
+    lb.classList.add("open");
+  }
+  function step(d) {
+    cur = (cur + d + PHOTOS.length) % PHOTOS.length;
+    lbImg.src = PHOTOS[cur];
+    lbCounter.textContent = `${cur + 1} / ${PHOTOS.length}`;
+  }
+  document.getElementById("lbClose").addEventListener("click", () => lb.classList.remove("open"));
+  document.getElementById("lbPrev").addEventListener("click", e => { e.stopPropagation(); step(-1); });
+  document.getElementById("lbNext").addEventListener("click", e => { e.stopPropagation(); step(1); });
+  lb.addEventListener("click", e => { if (e.target === lb) lb.classList.remove("open"); });
+  window.addEventListener("keydown", e => {
+    if (!lb.classList.contains("open")) return;
+    if (e.key === "Escape") lb.classList.remove("open");
+    if (e.key === "ArrowLeft") step(-1);
+    if (e.key === "ArrowRight") step(1);
+  });
+</script>
+</body>
+</html>

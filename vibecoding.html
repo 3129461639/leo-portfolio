@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo Lü — Vibe Coding</title>
+<style>
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-600-latin.woff2") format("woff2");
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-400-latin.woff2") format("woff2");
+    font-weight: 400;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #111111;
+    font-family: "Outfit", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0; /* 入场渐显（与全站一致，0.5s） */
+    transition: opacity 0.5s ease;
+  }
+  body.in { opacity: 1; }
+
+  /* ===== 左侧固定导航栏 ===== */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(0,0,0,0.08);
+    background: #ffffff;
+    z-index: 5;
+  }
+  .brand-name {
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.1em;
+    margin-bottom: 34px;
+  }
+  .nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 17px;
+    font-weight: 400;
+  }
+  .nav a {
+    color: #111111;
+    text-decoration: none;
+    line-height: 1.45;
+    transition: opacity 0.25s;
+  }
+  .nav a:hover { opacity: 0.45; }
+  .nav a.active { color: #9B30FF; }
+  .nav a.back-link {
+    margin-top: 26px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .copyright {
+    margin-top: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(17,17,17,0.55);
+  }
+
+  /* ===== 右侧主内容区 ===== */
+  .main {
+    margin-left: 240px;
+    padding: 28px 44px 120px;
+  }
+
+  /* 项目块：顶部 左简介 / 右标题 */
+  .project { margin-bottom: 120px; }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 44px;
+  }
+  .desc {
+    flex: 0 1 520px;
+    min-width: 320px;
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .desc p + p { margin-top: 1em; }
+  .desc .zh { font-family: "Songti SC", "STSong", serif; }
+  .title {
+    flex: 0 0 auto;
+    text-align: right;
+    font-weight: 600;
+    font-size: clamp(26px, 2.8vw, 40px);
+    line-height: 1.08;
+    letter-spacing: 0.01em;
+  }
+  .title .zh {
+    display: block;
+    font-family: "Songti SC", "STSong", serif;
+    font-weight: 700;
+  }
+  .title .year { font-weight: 400; }
+
+  /* 分组小标题 */
+  .group-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(17,17,17,0.45);
+    margin: 52px 0 20px;
+  }
+  .group-label:first-of-type { margin-top: 0; }
+
+  /* ===== 对称网格 ===== */
+  .grid { display: grid; gap: 20px; align-items: start; }
+  .grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* 滚动进入时轻微上浮渐显 */
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .grid img.seen { opacity: 1; transform: translateY(0); }
+
+  /* 锚点行：方图 2 列 + 三视图横幅 3 列（高度视觉对齐） */
+  .g-anchor { grid-template-columns: repeat(5, 1fr); }
+  .g-anchor .sq { grid-column: span 2; }
+  .g-anchor .wide { grid-column: span 3; }
+
+  /* 头像行：四列方形 */
+  .g-avatars { grid-template-columns: repeat(4, 1fr); }
+
+  /* 贴纸行：两列竖幅 */
+  .g-stickers { grid-template-columns: 1fr 1fr; }
+
+  /* 表情包行：六列方形 */
+  .g-emojis { grid-template-columns: repeat(6, 1fr); }
+
+  /* 海报行：12 列网格，竖版占 3 列（四张一行），横版占 6 列（两张一行） */
+  .g-posters { grid-template-columns: repeat(12, 1fr); }
+  .g-posters .p-port { grid-column: span 3; }
+  .g-posters .p-land { grid-column: span 6; }
+
+  /* 照片↔海报对照行：每行左照片右海报，统一 3:2 */
+  .g-pairs { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .g-pairs img {
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  .pair-label {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(17,17,17,0.4);
+    margin-top: 16px;
+  }
+  .pair-label:first-child { margin-top: 0; }
+
+  /* 手势交互视频：横屏视频块，滚动进入自动播放 */
+  .video-wrap {
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .video-wrap.seen { opacity: 1; transform: translateY(0); }
+  .video-wrap video {
+    width: min(920px, 100%);
+    display: block;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 18px;
+    background: #000;
+  }
+
+  @media (max-width: 860px) {
+    .sidebar {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .brand-name { margin-bottom: 14px; }
+    .copyright { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .head { flex-direction: column-reverse; gap: 20px; }
+    .title { text-align: left; }
+    .grid { gap: 12px; }
+    .g-anchor { grid-template-columns: 1fr; }
+    .g-anchor .sq, .g-anchor .wide { grid-column: auto; }
+    .g-avatars { grid-template-columns: 1fr 1fr; }
+    .g-emojis { grid-template-columns: repeat(3, 1fr); }
+    .g-posters { grid-template-columns: repeat(6, 1fr); }
+    .g-posters .p-port { grid-column: span 3; }
+    .g-posters .p-land { grid-column: span 6; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand-name">Leo Lü</div>
+    <ul class="nav">
+      <li><a href="poster.html">海报设计 Poster</a></li>
+      <li><a href="longform.html">长图文设计 Long-form</a></li>
+      <li><a href="photography.html">摄影 Photography</a></li>
+      <li><a href="newmedia.html">新媒体运营 New Media</a></li>
+      <li><a href="branding.html">品牌策划 Branding</a></li>
+      <li><a class="active" href="vibecoding.html">Vibe Coding</a></li>
+      <li><a class="back-link" href="index.html#works">← Back · 返回首页</a></li>
+    </ul>
+    <div class="copyright">All content copyright the artist.<br>No commercial use without express written permission.</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- 项目一：个人 IP 形象 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">一套用 Vibe Coding 完成的个人 IP 形象系统。以自己的照片为起点，和 AI 来回对话、反复调试提示词，最终得到一个稳定又可爱的「萌粒风」小人——从角色锚点和三视图出发，延展出头像、贴纸页和一整组表情包，让「我」在各个场景里都能被一眼认出。</p>
+          <p class="en">A personal IP character system built through vibe coding. Starting from my own photos and iterating prompts back and forth with AI, a consistent "chibi" character emerged — from the anchor sheet and three-view turnaround, to avatars, sticker sheets and a full emoji pack. Instantly recognizable, everywhere.</p>
+        </div>
+        <div class="title">
+          <span class="zh">个人 IP 形象</span>
+          Personal<br>IP Design<br><span class="year">2026 · I</span>
+        </div>
+      </div>
+
+      <!-- 锚点 + 三视图 -->
+      <div class="group-label">角色锚点 · Character Anchor</div>
+      <div class="grid g-anchor">
+        <img class="sq" src="vibecoding/ip/A1_anchor_front.png" alt="IP 角色锚点 正面">
+        <img class="wide" src="vibecoding/ip/A2_three_views.png" alt="IP 角色三视图">
+      </div>
+
+      <!-- 头像 -->
+      <div class="group-label">头像 · Avatars</div>
+      <div class="grid g-avatars">
+        <img src="vibecoding/ip/avatar_work.png" alt="头像 工作">
+        <img src="vibecoding/ip/avatar_coffee.png" alt="头像 咖啡">
+        <img src="vibecoding/ip/avatar_heart.png" alt="头像 爱心">
+        <img src="vibecoding/ip/avatar_sleep.png" alt="头像 睡觉">
+      </div>
+
+      <!-- 贴纸页 -->
+      <div class="group-label">贴纸页 · Sticker Sheets</div>
+      <div class="grid g-stickers">
+        <img src="vibecoding/ip/stickers_life.png" alt="生活主题贴纸页">
+        <img src="vibecoding/ip/stickers_work.png" alt="工作主题贴纸页">
+      </div>
+
+      <!-- 表情包 -->
+      <div class="group-label">表情包 · Emoji Pack</div>
+      <div class="grid g-emojis">
+        <img src="vibecoding/ip/emoji_01_happy.png" alt="表情包 开心">
+        <img src="vibecoding/ip/emoji_02_laugh.png" alt="表情包 大笑">
+        <img src="vibecoding/ip/emoji_03_love.png" alt="表情包 比心">
+        <img src="vibecoding/ip/emoji_04_thanks.png" alt="表情包 谢谢">
+        <img src="vibecoding/ip/emoji_05_ok.png" alt="表情包 OK">
+        <img src="vibecoding/ip/emoji_06_celebrate.png" alt="表情包 庆祝">
+        <img src="vibecoding/ip/emoji_07_shocked.png" alt="表情包 震惊">
+        <img src="vibecoding/ip/emoji_08_confused.png" alt="表情包 疑惑">
+        <img src="vibecoding/ip/emoji_09_angry.png" alt="表情包 生气">
+        <img src="vibecoding/ip/emoji_10_sad.png" alt="表情包 难过">
+        <img src="vibecoding/ip/emoji_11_crying.png" alt="表情包 大哭">
+        <img src="vibecoding/ip/emoji_12_tired.png" alt="表情包 疲惫">
+      </div>
+    </section>
+
+    <!-- 项目二：摄影转海报 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">把自己拍的照片 Vibe Coding 成一组海报。树冠间的天空、钟楼、林荫、水面的落叶、垂柳、人群与山海——先用镜头收集日常里的光，再和 AI 一起把它们重新排版、上色、写成海报。</p>
+          <p class="en">A poster series vibe-coded from my own photographs — sky between treetops, a clock tower, summer canopy, leaves on water, willows, city crowds and the road to the sea. First collecting light with a camera, then re-composing it with AI into posters.</p>
+        </div>
+        <div class="title">
+          <span class="zh">摄影转海报</span>
+          Photo to<br>Poster<br><span class="year">2026 · II</span>
+        </div>
+      </div>
+      <div class="grid g-posters">
+        <img class="p-port" src="vibecoding/posters/poster_01_sky_trees.png" alt="海报 树冠天空">
+        <img class="p-port" src="vibecoding/posters/poster_02_clock_tower.png" alt="海报 钟楼">
+        <img class="p-port" src="vibecoding/posters/poster_06_willow.png" alt="海报 垂柳">
+        <img class="p-port" src="vibecoding/posters/poster_road_sand_sea.png" alt="海报 公路与山海">
+        <img class="p-land" src="vibecoding/posters/poster_03_shade_building.png" alt="海报 林荫建筑">
+        <img class="p-land" src="vibecoding/posters/poster_04_summer_canopy.png" alt="海报 夏日树冠">
+        <img class="p-land" src="vibecoding/posters/poster_05_leaves_water.png" alt="海报 落叶水面">
+        <img class="p-land" src="vibecoding/posters/poster_07_city_crowd.png" alt="海报 城市人群">
+      </div>
+    </section>
+
+    <!-- 项目三：照片 ↔ 海报 对照 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">同一组海报练习的另一条线索：每一张海报都能找回它最初的那张照片。左边是按下快门的那一刻，右边是和 AI 反复对话后的再创作——古树的枝、池水的影、回廊的光、头顶的树冠、竹林的绿，一一对应。</p>
+          <p class="en">The other thread of the same poster exercise: every poster traces back to an original photograph. On the left, the moment the shutter clicked; on the right, the reimagination after rounds of dialogue with AI — branches of an old tree, reflections on a pond, light in a corridor, the canopy overhead, the green of bamboo. One to one.</p>
+        </div>
+        <div class="title">
+          <span class="zh">照片 ↔ 海报</span>
+          Photo ↔<br>Poster<br><span class="year">2026 · III</span>
+        </div>
+      </div>
+      <div class="grid g-pairs">
+        <div class="pair-label">01 · Tree · 树</div>
+        <img src="vibecoding/pairs/IMG_5264.JPG" alt="原片 古树">
+        <img src="vibecoding/pairs/poster-1-tree.png" alt="海报 树">
+
+        <div class="pair-label">02 · Pond · 池水</div>
+        <img src="vibecoding/pairs/IMG_5267.JPG" alt="原片 池水倒影">
+        <img src="vibecoding/pairs/poster-2-pond.png" alt="海报 池水">
+
+        <div class="pair-label">03 · Corridor · 回廊</div>
+        <img src="vibecoding/pairs/IMG_5268.JPG" alt="原片 回廊">
+        <img src="vibecoding/pairs/poster-3-corridor.png" alt="海报 回廊">
+
+        <div class="pair-label">04 · Canopy · 树冠</div>
+        <img src="vibecoding/pairs/IMG_5269.JPG" alt="原片 树冠">
+        <img src="vibecoding/pairs/poster-4-canopy.png" alt="海报 树冠">
+
+        <div class="pair-label">05 · Bamboo · 竹林</div>
+        <img src="vibecoding/pairs/IMG_5270.JPG" alt="原片 竹林">
+        <img src="vibecoding/pairs/poster-5-bamboo.png" alt="海报 竹林">
+      </div>
+    </section>
+
+    <!-- 项目四：手势交互（视频自动播放） -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">一段手势交互的录屏。用 Vibe Coding 做出的粒子文字效果——手指靠近时粒子被推开，划过时文字散开又聚拢，像水面被指尖拨动。代码和手感，都是和 AI 一轮轮聊出来的。</p>
+          <p class="en">A screen recording of gesture interaction — a particle text effect built with vibe coding. Particles scatter as the finger approaches and regather as it passes, like ripples on water. Both the code and the feel were iterated through rounds of dialogue with AI.</p>
+        </div>
+        <div class="title">
+          <span class="zh">手势交互</span>
+          Gesture<br>Interaction<br><span class="year">2026 · IV</span>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video id="gestureVideo" src="vibecoding/gesture-demo.mp4" controls muted loop playsinline preload="auto"></video>
+      </div>
+    </section>
+
+  </main>
+
+<script>
+  // 入场渐显
+  requestAnimationFrame(() => document.body.classList.add("in"));
+
+  // 滚动进入视口时渐显
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } });
+  }, { threshold: 0.04 });
+  document.querySelectorAll(".grid img, .video-wrap").forEach(s => io.observe(s));
+
+  // 手势交互视频：进入视口自动播放（静音循环），滚出暂停
+  const gv = document.getElementById("gestureVideo");
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { gv.play().catch(() => {}); }
+      else { gv.pause(); }
+    });
+  }, { threshold: 0.35 }).observe(gv);
+</script>
+</body>
+</html>

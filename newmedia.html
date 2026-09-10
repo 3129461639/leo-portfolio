@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo Lü — 新媒体运营 New Media</title>
+<style>
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-600-latin.woff2") format("woff2");
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: "Outfit";
+    src: url("./fonts/outfit-400-latin.woff2") format("woff2");
+    font-weight: 400;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #111111;
+    font-family: "Outfit", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0; /* 入场渐显（与全站一致，0.5s） */
+    transition: opacity 0.5s ease;
+  }
+  body.in { opacity: 1; }
+
+  /* ===== 左侧固定导航栏（参考 cargo.site 排版） ===== */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(0,0,0,0.08);
+    background: #ffffff;
+    z-index: 5;
+  }
+  .brand-name {
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.1em;
+    margin-bottom: 34px;
+  }
+  .nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 17px;
+    font-weight: 400;
+  }
+  .nav a {
+    color: #111111;
+    text-decoration: none;
+    line-height: 1.45;
+    transition: opacity 0.25s;
+  }
+  .nav a:hover { opacity: 0.45; }
+  .nav a.active { color: #9B30FF; } /* 当前板块高亮为品牌紫 */
+  .nav a.back-link {
+    margin-top: 26px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .copyright {
+    margin-top: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(17,17,17,0.55);
+  }
+
+  /* ===== 右侧主内容区 ===== */
+  .main {
+    margin-left: 240px;
+    padding: 28px 44px 120px;
+  }
+
+  /* 项目块：顶部 左简介 / 右标题，下方图片网格 */
+  .project { margin-bottom: 120px; }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 44px;
+  }
+  .desc {
+    flex: 0 1 520px;
+    min-width: 320px;
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .desc p + p { margin-top: 1em; }
+  .desc .zh { font-family: "Songti SC", "STSong", serif; }
+  .title {
+    flex: 0 0 auto;
+    text-align: right;
+    font-weight: 600;
+    font-size: clamp(26px, 2.8vw, 40px);
+    line-height: 1.08;
+    letter-spacing: 0.01em;
+  }
+  .title .zh {
+    display: block;
+    font-family: "Songti SC", "STSong", serif;
+    font-weight: 700;
+  }
+  .title .year { font-weight: 400; }
+
+  /* 图片网格：统一 3:2 画幅，截图完整内嵌（白底无缝） */
+  .shots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  /* 美呗五图：上排三张、下排两张居中对称 */
+  .shots.six { grid-template-columns: repeat(6, 1fr); }
+  .shots.six img:nth-child(-n+3) { grid-column: span 2; }
+  .shots.six img:nth-child(n+4) { grid-column: span 3; }
+  .shots img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: contain; /* 完整显示，不裁切 */
+    background: #ffffff;
+    display: block;
+    border: 1px solid rgba(0,0,0,0.06);
+    /* 滚动进入时轻微上浮渐显 */
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .shots img.seen { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 860px) {
+    .sidebar {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .brand-name { margin-bottom: 14px; }
+    .copyright { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .head { flex-direction: column-reverse; gap: 20px; }
+    .title { text-align: left; }
+    .shots, .shots.six { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .shots.six img:nth-child(-n+3),
+    .shots.six img:nth-child(n+4) { grid-column: auto; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand-name">Leo Lü</div>
+    <ul class="nav">
+      <li><a href="poster.html">海报设计 Poster</a></li>
+      <li><a href="longform.html">长图文设计 Long-form</a></li>
+      <li><a href="photography.html">摄影 Photography</a></li>
+      <li><a class="active" href="newmedia.html">新媒体运营 New Media</a></li>
+      <li><a href="branding.html">品牌策划 Branding</a></li>
+      <li><a href="vibecoding.html">Vibe Coding</a></li>
+      <li><a class="back-link" href="index.html#works">← Back · 返回首页</a></li>
+    </ul>
+    <div class="copyright">All content copyright the artist.<br>No commercial use without express written permission.</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- 项目一：个人快手账号运营 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">个人快手账号的运营记录。从选题、拍摄到剪辑、发布全部由自己完成，90 天内作品播放 32.4 万，单条视频最高涨粉近百、收获 4545 次点赞。</p>
+          <p class="en">Running my own Kuaishou account — scripting, shooting, editing and publishing all by myself. In 90 days the works reached 324K views, with a single video gaining nearly a hundred followers and 4,545 likes.</p>
+        </div>
+        <div class="title">
+          <span class="zh">新媒体运营</span>
+          New Media<br><span class="year">2024 · I</span>
+        </div>
+      </div>
+      <div class="shots">
+        <img src="newmedia/kwai1.jpg" alt="个人快手账号核心数据诊断">
+        <img src="newmedia/kwai2.jpg" alt="个人快手账号运营数据">
+      </div>
+    </section>
+
+    <!-- 项目二：美呗公司账号运营 -->
+    <section class="project">
+      <div class="head">
+        <div class="desc">
+          <p class="zh">在美呗做新媒体运营期间，负责公司账号的内容策划与日常运营。单 30 天内笔记观看量 54.8 万、环比增长 262%，点赞 1.1 万、增长 206%，收藏 8845——从内容选题到数据复盘，一段完整的运营实战。</p>
+          <p class="en">During my time in new media operations at Meibei, I handled content planning and daily operations for the company's account. Within 30 days, note views reached 548K (+262% MoM), likes hit 11K (+206%), and 8,845 saves — a full cycle of hands-on operations, from topic selection to data review.</p>
+        </div>
+        <div class="title">
+          <span class="zh">新媒体运营</span>
+          New Media<br><span class="year">2024 · II</span>
+        </div>
+      </div>
+      <div class="shots six">
+        <img src="newmedia/meibo1.jpg" alt="美呗账号笔记数据总览">
+        <img src="newmedia/meibo5.png" alt="美呗账号每周数据概览">
+        <img src="newmedia/meibo4.png" alt="美呗单篇笔记数据明细">
+        <img src="newmedia/meibo2.jpg" alt="美呗账号诊断雷达图">
+        <img src="newmedia/meibo3.jpg" alt="美呗账号诊断明细">
+      </div>
+    </section>
+
+  </main>
+
+<script>
+  // 入场渐显
+  requestAnimationFrame(() => document.body.classList.add("in"));
+
+  // 滚动进入视口时渐显
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } });
+  }, { threshold: 0.04 });
+  document.querySelectorAll(".shots img").forEach(s => io.observe(s));
+</script>
+</body>
+</html>
