@@ -1,0 +1,26 @@
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/photos/*
+  Cache-Control: public, max-age=604800
+
+/photography/*
+  Cache-Control: public, max-age=604800
+
+/poster/*
+  Cache-Control: public, max-age=604800
+
+/longform/*
+  Cache-Control: public, max-age=604800
+
+/newmedia/*
+  Cache-Control: public, max-age=604800
+
+/vibecoding/*
+  Cache-Control: public, max-age=604800
+
+/branding/*
+  Cache-Control: public, max-age=604800
+
+/fonts/*
+  Cache-Control: public, max-age=604800

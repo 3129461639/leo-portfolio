@@ -1276,11 +1276,12 @@
     });
   }, { threshold: 0.25 }).observe(worksPage2);
 
-  // （作品模块的放大与文案变紫为纯 CSS hover，与图片放大同时长同缓动）
   // 带有 data-href 的作品卡片：先播放 Leo Lü 过渡动画，再渐隐整页后进入对应作品页（每个板块统一）
   document.querySelectorAll(".work-card[data-href]").forEach(card => {
+    const href = card.getAttribute("data-href");
+    // 鼠标悬停/触摸卡片时立即预取对应详情页，点击近乎秒开
+    if (href) card.addEventListener("pointerenter", () => prefetchPage(href), { once: true, passive: true });
     card.addEventListener("click", () => {
-      const href = card.getAttribute("data-href");
       if (!href) return;
       playLoader(() => {
         document.body.style.transition = "opacity 0.5s ease";
@@ -1288,6 +1289,37 @@
         setTimeout(() => { window.location.href = href; }, 520);
       });
     });
+  });
+
+  // ===== 空闲预取：首页加载完成后，后台把六个详情页（含其中的原图）提前下载进缓存 =====
+  // 不做懒加载——图片仍是原图、进入页面立即显示；预取只是把等待时间挪到用户浏览首页的时候
+  const DETAIL_PAGES = ["poster.html", "longform.html", "photography.html", "newmedia.html", "branding.html", "vibecoding.html"];
+  const prefetched = new Set();
+  function prefetchPage(url) {
+    if (prefetched.has(url)) return;
+    prefetched.add(url);
+    fetch(url, { credentials: "same-origin" })
+      .then(r => r.text())
+      .then(html => {
+        // 解析详情页里的图片/视频地址，后台逐个拉取进缓存
+        const urls = new Set();
+        for (const m of html.matchAll(/(?:src|href)="([^"]+\.(?:jpg|jpeg|png|mp4))"/gi)) urls.add(m[1]);
+        // JS 里动态拼接的资源（如摄影圆环、海报墙）按已知命名规则补齐
+        if (url === "photography.html") for (let k = 1; k <= 21; k++) urls.add(`photography/photos/ph${String(k).padStart(2, "0")}.jpg`);
+        if (url === "poster.html") for (let k = 1; k <= 11; k++) urls.add(`poster/photos/poster${String(k).padStart(2, "0")}.jpg`);
+        const idle = window.requestIdleCallback || (f => setTimeout(f, 300));
+        const list = [...urls];
+        const next = () => { const u = list.shift(); if (u) { fetch(u, { credentials: "same-origin" }).catch(() => {}); idle(next); } };
+        idle(next);
+      })
+      .catch(() => {});
+  }
+  window.addEventListener("load", () => {
+    if (navigator.connection && navigator.connection.saveData) return; // 省流量模式下不预取
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 2000));
+    let i = 0;
+    const step = () => { if (i < DETAIL_PAGES.length) { prefetchPage(DETAIL_PAGES[i++]); idle(step); } };
+    idle(step);
   });
 
   // 结尾大标语：实心行从右往左、描边行从左往右，起始点在屏幕边缘外（复刻 bbdo "DO BIG THINGS" 的大幅度滑动）

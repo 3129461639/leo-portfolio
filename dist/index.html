@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="preload" as="image" href="/assets/p01-DG7rQ-ul.jpg" /> <!-- 首屏轮播图预加载，避免手机端黑屏等待 -->
+<link rel="preload" as="image" href="/assets/p01-Ec9_tWKp.jpg" /> <!-- 首屏轮播图预加载，避免手机端黑屏等待 -->
 <title>Leo Lü — 个人主页</title>
 <style>
   @font-face {
@@ -1546,11 +1546,16 @@
     new ResizeObserver(() => resize()).observe(canvas);
   })();
 </script>
-<style>[id*="netlify" i],[class*="netlify" i]{display:none!important}</style>
+<style>[id*="netlify" i],[class*="netlify" i],iframe[srcdoc*="Netlify"]{display:none!important}</style>
 <script>
 /* 移除 Netlify 免费版注入的右下角徽标 */
 (function () {
-  const kill = () => document.querySelectorAll('[id*="netlify" i],[class*="netlify" i]').forEach(e => e.remove());
+  const kill = () => {
+    document.querySelectorAll('[id*="netlify" i],[class*="netlify" i]').forEach(e => e.remove());
+    // HUD 徽标是 srcdoc iframe，直接按内容识别并移除；同时掐掉它的脚本
+    document.querySelectorAll('script[src*="/.netlify/"],script[data-netlify-site-id]').forEach(e => e.remove());
+    document.querySelectorAll('iframe[srcdoc]').forEach(f => { if ((f.getAttribute('srcdoc') || '').includes('Netlify')) f.remove(); });
+  };
   kill();
   new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
 })();
