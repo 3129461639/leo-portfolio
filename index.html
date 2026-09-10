@@ -29,11 +29,13 @@
   :root { --red: #9754c7; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; }
+  html { overflow-x: clip; }
   body {
     font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Noto Sans SC", sans-serif;
     background: var(--red);   /* 紫色边框底色（复刻 bbdo 红框：底色透出边距） */
     color: var(--red);
     overflow-x: clip;   /* 不用 hidden：会破坏 sticky 固定效果 */
+    touch-action: pan-y; /* 触屏只允许纵向滚动，杜绝左右滑动穿页 */
   }
 
   /* 复刻 bbdo：内容四周留出边距，露出紫色边框（加宽版）；fixed 固定，下一屏滑上来覆盖 */
@@ -467,6 +469,7 @@
     z-index: 2;
     background: #0d0d0d;
     padding: 12vh 0 14vh;
+    overflow: clip; /* 奖项行从右滑入时不撑出横向滚动 */
   }
   .awards-title {
     font-family: "Outfit", sans-serif;
@@ -539,6 +542,7 @@
     position: relative;
     z-index: 2;
     background: #0d0d0d;
+    overflow: clip; /* 卡片从右滑入时不撑出横向滚动 */
   }
   /* —— 第一屏：左侧竖排 WORK + 右侧正方形四等份 —— */
   .works-page1 {
@@ -569,7 +573,7 @@
   .works-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* minmax(0,…) 防止不换行文案把格子撑出屏幕 */
     gap: 3vh 2.5vw;
   }
   .work-card { cursor: pointer; }
@@ -776,8 +780,12 @@
   .works-all a:hover { background: #f2f2f2; color: #0d0d0d; }
   @media (max-width: 1023px) {
     .works-page1 { flex-direction: column; align-items: flex-start; padding: 8vh 1rem; }
-    .works-vertical { font-size: 13vh; writing-mode: horizontal-tb; transform: none; padding: 0 0 4vh; }
+    .works-vertical { font-size: 12vw; writing-mode: horizontal-tb; transform: none; padding: 0 0 4vh; }
     .works-grid { width: 100%; }
+    .work-card .meta { flex-direction: column; align-items: flex-start; gap: 0.35em; margin-top: 1.4vh; }
+    .work-card .meta .t { white-space: normal; font-size: 15px; }
+    .work-card .meta .s { white-space: normal; font-size: 11px; }
+    .work-card .meta .s::before { width: 1.4em; margin-right: 0.6em; }
     .works-page2 { flex-direction: column; padding: 8vh 1rem 0; }
     .works-page2 .thumb { height: 44vh; }
   }
@@ -860,6 +868,16 @@
     .site-footer { padding: 0 1rem 7vh; }
     .site-footer::before { margin-bottom: 5vh; }
     .footer-links { margin-top: 5vh; }
+  }
+
+  /* ===== 移动端字号兜底（必须放在所有基础规则之后，否则被后面的 clamp 覆盖） ===== */
+  @media (max-width: 1023px) {
+    .awards-title { font-size: 10.5vw; padding: 0 1rem; }
+    .awards-inner { padding: 0 1rem; }
+    /* 手机端按视口宽取值，保证 FACE EVERYTHING / CREATE ANYWAY 定格后完整显示 */
+    .slogan-line { font-size: 7.6vw; }
+    .slogan-line.solid { padding-left: 4vw; }
+    .slogan-line.outline { padding-left: 1.5vw; -webkit-text-stroke-width: 1.2px; }
   }
 </style>
 </head>
@@ -1496,15 +1514,24 @@
     }
 
     // 等 Outfit 字体加载完再采样文字形状，保证粒子字形与全站一致
+    // 注意：fonts.load 在部分手机浏览器（微信/旧 Safari）会 reject 或长期 pending，
+    // 任何结果都必须继续初始化，否则粒子永远不出现
+    const start = () => { resize(); requestAnimationFrame(frame); };
     Promise.race([
-      document.fonts.load('600 100px "Outfit"'),
+      document.fonts.load('600 100px "Outfit"').catch(() => {}),
       new Promise(res => setTimeout(res, 2000))
-    ]).then(() => {
-      resize();
-      requestAnimationFrame(frame);
-    });
+    ]).then(start).catch(start);
     new ResizeObserver(() => resize()).observe(canvas);
   })();
+</script>
+<style>[id*="netlify" i],[class*="netlify" i]{display:none!important}</style>
+<script>
+/* 移除 Netlify 免费版注入的右下角徽标 */
+(function () {
+  const kill = () => document.querySelectorAll('[id*="netlify" i],[class*="netlify" i]').forEach(e => e.remove());
+  kill();
+  new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>

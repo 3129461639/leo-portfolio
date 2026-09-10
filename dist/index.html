@@ -44,6 +44,9 @@
     right: 16px;
     z-index: 1;
     height: calc(100vh - 34px);
+    height: calc(100svh - 34px);   /* Safari 动态工具栏兼容：优先用小视口高度 */
+    height: calc(100dvh - 34px);
+    background: #0d0d0d;           /* 图片未加载/间隙时兜底为黑，不透出紫色 */
     overflow: hidden;
     will-change: transform, filter;
   }
@@ -1312,6 +1315,8 @@
   setTimeout(tick, INTERVAL);
 
   /* ===== 厚重感平滑滚动（复刻 bbdo 的 lerp 惯性滚动手感） ===== */
+  /* 仅在精确指针（鼠标/触控板）设备启用；触屏设备原生滚动已足够顺滑，强行接管会抖动 */
+  if (window.matchMedia("(pointer: fine)").matches)
   (function () {
     let targetY = window.scrollY;
     let currentY = window.scrollY;

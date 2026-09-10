@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leo Lü — Vibe Coding</title>
 <style>
+  html, body { overflow-x: clip; touch-action: pan-y; } /* 触屏禁横向滚动，杜绝穿页 */
+
   @font-face {
     font-family: "Outfit";
     src: url("./fonts/outfit-600-latin.woff2") format("woff2");
@@ -384,6 +386,15 @@
       else { gv.pause(); }
     });
   }, { threshold: 0.35 }).observe(gv);
+</script>
+<style>[id*="netlify" i],[class*="netlify" i]{display:none!important}</style>
+<script>
+/* 移除 Netlify 免费版注入的右下角徽标 */
+(function () {
+  const kill = () => document.querySelectorAll('[id*="netlify" i],[class*="netlify" i]').forEach(e => e.remove());
+  kill();
+  new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>

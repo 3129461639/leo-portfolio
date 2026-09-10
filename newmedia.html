@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leo Lü — 新媒体运营 New Media</title>
 <style>
+  html, body { overflow-x: clip; touch-action: pan-y; } /* 触屏禁横向滚动，杜绝穿页 */
+
   @font-face {
     font-family: "Outfit";
     src: url("./fonts/outfit-600-latin.woff2") format("woff2");
@@ -228,6 +230,15 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } });
   }, { threshold: 0.04 });
   document.querySelectorAll(".shots img").forEach(s => io.observe(s));
+</script>
+<style>[id*="netlify" i],[class*="netlify" i]{display:none!important}</style>
+<script>
+/* 移除 Netlify 免费版注入的右下角徽标 */
+(function () {
+  const kill = () => document.querySelectorAll('[id*="netlify" i],[class*="netlify" i]').forEach(e => e.remove());
+  kill();
+  new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>
