@@ -362,7 +362,7 @@
         </div>
       </div>
       <div class="video-wrap">
-        <video id="gestureVideo" src="vibecoding/gesture-demo.mp4" controls muted loop playsinline preload="auto"></video>
+        <video id="gestureVideo" src="vibecoding/gesture-demo.mp4" autoplay controls muted loop playsinline webkit-playsinline preload="auto"></video>
       </div>
     </section>
 
@@ -386,6 +386,12 @@
       else { gv.pause(); }
     });
   }, { threshold: 0.35 }).observe(gv);
+
+  // 微信/iOS 兜底：进入页面先尝试播一次；若被拦截，首次触碰屏幕时补播
+  const tryPlay = v => { if (v && v.paused) v.play().catch(() => {}); };
+  window.addEventListener("load", () => tryPlay(gv));
+  window.addEventListener("touchend", () => tryPlay(gv), { passive: true });
+  window.addEventListener("pointerdown", () => tryPlay(gv), { passive: true });
 </script>
 <style>[id*="netlify" i],[class*="netlify" i]{display:none!important}</style>
 <script>

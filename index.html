@@ -878,6 +878,22 @@
     .slogan-line { font-size: 7.6vw; }
     .slogan-line.solid { padding-left: 4vw; }
     .slogan-line.outline { padding-left: 1.5vw; -webkit-text-stroke-width: 1.2px; }
+    /* 海报卡：竖排四字 + 英文在半宽卡片内必须同时装下 */
+    .type-inner.type-poster { padding: 7%; }
+    .type-inner.type-poster .zh { font-size: 26px; line-height: 1.08; }
+    .type-inner.type-poster .en { font-size: 8px; letter-spacing: 0.28em; white-space: nowrap; }
+    /* 其余卡片手机端字号同步收敛，避免文字溢出卡片 */
+    .type-inner.type-longform .zh { font-size: 26px; }
+    .type-inner.type-longform .en { font-size: 10px; }
+    .type-inner.type-photo .zh { font-size: 26px; }
+    .type-inner.type-photo .en { font-size: 9px; letter-spacing: 0.45em; }
+    .type-inner.type-media .zh { font-size: 24px; }
+    .type-inner.type-media .en { font-size: 12px; }
+    .type-inner.type-brand .zh { font-size: 44px; }
+    .type-inner.type-brand .en { font-size: 9px; letter-spacing: 0.3em; }
+    .type-inner.type-vibe .en { font-size: 42px; }
+    .type-inner.type-vibe .en.outline { -webkit-text-stroke-width: 1.2px; }
+    .type-inner.type-vibe .zh { font-size: 11px; letter-spacing: 0.4em; }
   }
 </style>
 </head>
@@ -1443,6 +1459,11 @@
       pointer.y = e.clientY - r.top;
     }, { passive: true });
     window.addEventListener("pointerleave", () => { pointer.x = -9999; pointer.y = -9999; });
+    // 触屏关键修复：手指抬起后必须重置指针，否则触点停留在最后位置，粒子一直被排斥无法复原
+    const release = () => { pointer.x = -9999; pointer.y = -9999; };
+    window.addEventListener("pointerup", release, { passive: true });
+    window.addEventListener("pointercancel", release, { passive: true });
+    window.addEventListener("touchend", release, { passive: true });
 
     function repel(p, isScatter) {
       const dx = p.x - pointer.x, dy = p.y - pointer.y;

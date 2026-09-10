@@ -237,9 +237,19 @@
   }
 
   @media (max-width: 768px) {
-    .photo { width: 52px; height: 70px; margin: -35px 0 0 -26px; }
-    .quote { max-width: 220px; }
-    .quote .zh { font-size: 11px; }
+    /* 圆环上移并缩小，给底部文案留出完整区域 */
+    .ring { top: 42%; }
+    .photo { width: 48px; height: 64px; margin: -32px 0 0 -24px; }
+    /* 导航收到左上，紧随返回键，避免压住圆环右上角 */
+    .site-nav { top: 9.5vh; left: 3vw; right: auto; text-align: left; gap: 2px; }
+    .site-nav a { font-size: 11px; letter-spacing: 0.06em; }
+    /* 文案通栏放置在圆环与品牌名之间，互不遮挡 */
+    .quote { left: 6vw; right: 6vw; bottom: 12.5vh; max-width: none; }
+    .quote .zh { font-size: 11px; line-height: 1.9; }
+    .quote .en { font-size: 9px; line-height: 1.6; margin-top: 8px; }
+    .brand { bottom: 2vh; }
+    .brand .name { font-size: 24px; }
+    .brand .sub { font-size: 9px; letter-spacing: 0.4em; margin-top: 6px; }
   }
 </style>
 </head>
@@ -285,7 +295,7 @@
   );
 
   const ring = document.getElementById("ring");
-  const RADIUS = () => Math.min(window.innerWidth, window.innerHeight) * 0.33;
+  const RADIUS = () => Math.min(window.innerWidth, window.innerHeight) * (window.innerWidth < 768 ? 0.27 : 0.33);
   const cards = [];
 
   PHOTOS.forEach((src, idx) => {
